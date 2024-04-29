@@ -16,7 +16,7 @@ class OnboardingView extends ActiveView<MainController> {
 class _OnboardingViewState extends ActiveState<OnboardingView, MainController> {
   _OnboardingViewState(super.activeController);
 
-  final TextEditingController nameCtrl = TextEditingController();
+  final TextEditingController _nameCtrl = TextEditingController();
   final _userForm = GlobalKey<FormState>();
 
   @override
@@ -57,14 +57,14 @@ class _OnboardingViewState extends ActiveState<OnboardingView, MainController> {
                     }
                     return null;
                   },
-                  fieldCtrl: nameCtrl,
+                  fieldCtrl: _nameCtrl,
                   label: 'What should we call you?',
                   isRequired: true),
             ),
             PrimaryButton(
               onPressed: () async {
                 if (_userForm.currentState!.validate()) {
-                  await activeController.handleOnboard(nameCtrl.text);
+                  await activeController.handleOnboard(_nameCtrl.text);
                   if (context.mounted) {
                     Navigator.pushNamedAndRemoveUntil(
                         context, '/home', (route) => false);

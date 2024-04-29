@@ -6,15 +6,16 @@ class CustomFormField extends StatelessWidget {
   final bool isRequired;
   final TextInputType? keyboardType;
   final TextEditingController fieldCtrl;
+  final int maxLines;
 
-  const CustomFormField({
-    super.key,
-    required this.onValidate,
-    required this.label,
-    required this.isRequired,
-    required this.fieldCtrl,
-    this.keyboardType,
-  });
+  const CustomFormField(
+      {super.key,
+      required this.onValidate,
+      required this.label,
+      required this.isRequired,
+      required this.fieldCtrl,
+      this.keyboardType,
+      this.maxLines = 1});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +31,7 @@ class CustomFormField extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: label,
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                   TextSpan(
                     text: isRequired ? ' *' : '',
@@ -47,6 +48,7 @@ class CustomFormField extends StatelessWidget {
             controller: fieldCtrl,
             keyboardType: keyboardType,
             validator: onValidate,
+            maxLines: maxLines,
           ),
         ],
       ),
