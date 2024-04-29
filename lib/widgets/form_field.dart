@@ -5,14 +5,14 @@ class CustomFormField extends StatelessWidget {
   final String label;
   final bool isRequired;
   final TextInputType? keyboardType;
-  final TextEditingController? textCtrl;
+  final TextEditingController fieldCtrl;
 
   const CustomFormField({
     super.key,
     required this.onValidate,
     required this.label,
     required this.isRequired,
-    this.textCtrl,
+    required this.fieldCtrl,
     this.keyboardType,
   });
 
@@ -44,7 +44,7 @@ class CustomFormField extends StatelessWidget {
             ),
           ),
           TextFormField(
-            controller: textCtrl,
+            controller: fieldCtrl,
             keyboardType: keyboardType,
             validator: onValidate,
           ),
