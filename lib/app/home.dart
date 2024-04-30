@@ -4,6 +4,7 @@ import 'package:tuduus/app/single_task.dart';
 import 'package:tuduus/data/count_card.dart';
 import 'package:tuduus/main_controller.dart';
 import 'package:tuduus/widgets/board_dialog.dart';
+import 'package:tuduus/widgets/dropdown_field.dart';
 import 'package:tuduus/widgets/task_tile.dart';
 
 class HomeView extends ActiveView<MainController> {
@@ -84,24 +85,15 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
           children: [
             SizedBox(
               width: 180,
-              child: DropdownButton<String>(
-                value: activeController.currentBoard.value,
-                icon: const Icon(Icons.keyboard_arrow_down),
-                underline: Container(),
-                onChanged: (String? newValue) async {
-                  if (newValue != null) {
-                    activeController.currentBoard = ActiveString(newValue);
-                    await activeController.getTasks();
-                  }
-                },
-                items: activeController.taskBoardNames.value
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
+              child: DropDownField(
+                  dropdownValue: activeController.currentBoard.value,
+                  onSelected: (String? newValue) async {
+                    if (newValue != null) {
+                      activeController.currentBoard = ActiveString(newValue);
+                      await activeController.getTasks();
+                    }
+                  },
+                  dropdownList: activeController.taskBoardNames.value),
             ),
             ElevatedButton(
                 onPressed: () => showDialog<String>(
@@ -126,6 +118,7 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
     return ListView.builder(
         key: UniqueKey(),
         shrinkWrap: true,
+        padding: EdgeInsets.zero,
         physics: const ClampingScrollPhysics(),
         itemBuilder: (context, index) {
           return TaskTile(
@@ -178,6 +171,7 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
                   ? ListView.builder(
                       key: UniqueKey(),
                       shrinkWrap: true,
+                      padding: EdgeInsets.zero,
                       physics: const ClampingScrollPhysics(),
                       itemBuilder: (context, index) {
                         return TaskTile(

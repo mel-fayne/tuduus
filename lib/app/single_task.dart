@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tuduus/data/task.dart';
 import 'package:tuduus/main_controller.dart';
 import 'package:tuduus/utils/constants.dart';
+import 'package:tuduus/widgets/dropdown_field.dart';
 import 'package:tuduus/widgets/form_field.dart';
 import 'package:tuduus/widgets/primary_button.dart';
 
@@ -28,6 +29,7 @@ class _SingleTaskViewState extends ActiveState<SingleTaskView, MainController> {
   TextEditingController descCtrl = TextEditingController();
   String priority = 'LOW';
   bool isComplete = false;
+  String boardName = defaultBoard;
 
   @override
   void initState() {
@@ -37,42 +39,22 @@ class _SingleTaskViewState extends ActiveState<SingleTaskView, MainController> {
       descCtrl.text = widget.currentTask!.description ?? '';
       priority = getPriority(widget.currentTask!.priority);
       isComplete = widget.currentTask!.isComplete;
+      boardName = widget.currentTask!.board;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        title: widget.isEdit ? const SizedBox() : const Text('Create a Task'),
-        actions: [
-          widget.isEdit
-              ? Padding(
-                  padding: const EdgeInsets.only(right: 15),
-                  child: GestureDetector(
-                    onTap: () async {
-                      activeController.deleteTask(widget.currentTask!);
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      'Delete Task',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.error),
-                    ),
-                  ),
-                )
-              : const SizedBox()
-        ],
-      ),
+      appBar: _buildAppBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 25),
         child: Form(
           key: taskForm,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _buildBoardField(),
               CustomFormField(
                   onValidate: (value) {
                     if (value!.isEmpty) {
@@ -91,44 +73,7 @@ class _SingleTaskViewState extends ActiveState<SingleTaskView, MainController> {
                   label: 'Description',
                   maxLines: 4,
                   isRequired: false),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Priority',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    Column(
-                      children: priorityStates.keys
-                          .map(
-                            (e) => ListTile(
-                              title: Text(
-                                e,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: e == 'HIGH'
-                                        ? Colors.red
-                                        : e == 'MID'
-                                            ? Colors.amber
-                                            : Colors.green),
-                              ),
-                              leading: Radio<String>(
-                                value: e,
-                                groupValue: priority,
-                                onChanged: (value) {
-                                  priority = value!;
-                                  setState(() {});
-                                },
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    )
-                  ],
-                ),
-              ),
+              _buildPriorityField(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -167,6 +112,102 @@ class _SingleTaskViewState extends ActiveState<SingleTaskView, MainController> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildPriorityField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Priority',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          Column(
+            children: priorityStates.keys
+                .map(
+                  (e) => ListTile(
+                    title: Text(
+                      e,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: e == 'HIGH'
+                              ? Colors.red
+                              : e == 'MID'
+                                  ? Colors.amber
+                                  : Colors.green),
+                    ),
+                    leading: Radio<String>(
+                      value: e,
+                      groupValue: priority,
+                      onChanged: (value) {
+                        priority = value!;
+                        setState(() {});
+                      },
+                    ),
+                  ),
+                )
+                .toList(),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBoardField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(
+          height: 10,
+        ),
+        const Text('TaskBoard'),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          width: double.infinity,
+          child: DropDownField(
+              dropdownValue: boardName,
+              onSelected: (String? newValue) async {
+                if (newValue != null) {
+                  boardName = newValue;
+                }
+              },
+              dropdownList: activeController.taskBoardNames.value),
+        ),
+      ],
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      automaticallyImplyLeading: true,
+      title: widget.isEdit ? const SizedBox() : const Text('Create a Task'),
+      actions: [
+        widget.isEdit
+            ? Padding(
+                padding: const EdgeInsets.only(right: 15),
+                child: GestureDetector(
+                  onTap: () async {
+                    activeController.deleteTask(widget.currentTask!);
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'Delete Task',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.error),
+                  ),
+                ),
+              )
+            : const SizedBox()
+      ],
     );
   }
 }
