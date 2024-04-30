@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tuduus/app/single_task.dart';
 import 'package:tuduus/data/count_card.dart';
 import 'package:tuduus/main_controller.dart';
+import 'package:tuduus/utils/constants.dart';
 import 'package:tuduus/widgets/board_dialog.dart';
 import 'package:tuduus/widgets/dropdown_field.dart';
 import 'package:tuduus/widgets/primary_button.dart';
@@ -37,12 +38,17 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
           children: [
             _buildBoardHeader(),
             const Divider(),
+            _buildPriorityFilters(),
+            const Divider(),
             activeController.inCompleteTasks.value.isEmpty
                 ? _buildNoTasks()
                 : _buildInCompleteTasks(),
             activeController.completeTasks.value.isEmpty
                 ? const SizedBox()
-                : _buildCompletedList()
+                : _buildCompletedList(),
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 9,
+            )
           ],
         ),
       ),
@@ -58,6 +64,38 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
         },
         child: const Icon(Icons.add),
       ),
+    );
+  }
+
+  Widget _buildPriorityFilters() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.filter_alt,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const Text("Filter by Priority"),
+          ],
+        ),
+        Wrap(
+          children: ['All', ...priorityStates.keys]
+              .map((e) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: ChoiceChip(
+                      label: Text(e),
+                      selected: activeController.selectedPriority.value == e,
+                      onSelected: (value) async {
+                        activeController.selectedPriority = ActiveString(e);
+                        await activeController.getTasks();
+                      },
+                    ),
+                  ))
+              .toList(),
+        ),
+      ],
     );
   }
 
@@ -242,7 +280,7 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
         children: [
           Image.asset(
             'assets/images/rest.png',
-            height: 300,
+            height: 250,
           ),
           const SizedBox(
             height: 10,

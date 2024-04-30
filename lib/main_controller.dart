@@ -14,6 +14,7 @@ class MainController extends ActiveController {
   }
 
   ActiveString userName = ActiveString('');
+  ActiveString selectedPriority = ActiveString('All');
   ActiveString currentBoard = ActiveString(defaultBoard);
   ActiveType<List<String>> taskBoardNames = ActiveType([]);
   ActiveType<List<Task>> completeTasks = ActiveType([]);
@@ -31,9 +32,14 @@ class MainController extends ActiveController {
 
   Future<void> getTasks() async {
     String sortOrder = isDesc.value ? 'DESC' : 'ASC';
+    final Map<String, dynamic> fetchQuery = {'board == ?': currentBoard.value};
+    if (selectedPriority.value != "All") {
+      fetchQuery['priority == ?'] = priorityStates[selectedPriority.value];
+    }
+
     var allTasks = await QuickeyDB.getInstance!<TaskSchema>()!
-        .where({'board == ?': currentBoard.value}).order(
-            ['priority'], sortOrder).toList();
+        .where(fetchQuery)
+        .order(['priority'], sortOrder).toList();
     allTasks = allTasks.where((task) => task != null).cast<Task>().toList();
 
     completeTasks = ActiveType(
