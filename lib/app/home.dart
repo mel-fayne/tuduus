@@ -46,49 +46,7 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
           ],
         ),
       ),
-      bottomSheet: Container(
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          height: MediaQuery.of(context).size.height / 10,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 20),
-            child: Row(
-              children: [
-                IconButton(
-                    onPressed: () => showDialog<String>(
-                          context: context,
-                          builder: (BuildContext context) => Dialog(
-                            child: BoardDialog(
-                              mainCtrl: activeController,
-                              isEdit: true,
-                            ),
-                          ),
-                        ),
-                    icon: const Icon(Icons.edit_square)),
-                IconButton(
-                    onPressed: () async {
-                      activeController.isDesc =
-                          ActiveBool(!activeController.isDesc.value);
-                      await activeController.getTasks();
-                    },
-                    icon: Icon(activeController.isDesc.value
-                        ? Icons.keyboard_double_arrow_down
-                        : Icons.keyboard_double_arrow_up)),
-                activeController.taskBoardNames.value.length == 1
-                    ? const SizedBox()
-                    : IconButton(
-                        onPressed: () => showDialog<String>(
-                              context: context,
-                              builder: (BuildContext context) => Dialog(
-                                child: _buildDeleteWarning(),
-                              ),
-                            ),
-                        icon: Icon(
-                          Icons.delete,
-                          color: Theme.of(context).colorScheme.error,
-                        )),
-              ],
-            ),
-          )),
+      bottomSheet: _buildBottomSheet(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -99,6 +57,53 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
           );
         },
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildBottomSheet() {
+    return Container(
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      height: MediaQuery.of(context).size.height / 10,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 20),
+        child: Row(
+          children: [
+            IconButton(
+                onPressed: () => showDialog<String>(
+                      context: context,
+                      builder: (BuildContext context) => Dialog(
+                        child: BoardDialog(
+                          mainCtrl: activeController,
+                          isEdit: true,
+                        ),
+                      ),
+                    ),
+                icon: const Icon(Icons.edit_square)),
+            IconButton(
+                onPressed: () async {
+                  activeController.isDesc =
+                      ActiveBool(!activeController.isDesc.value);
+                  await activeController.getTasks();
+                },
+                icon: Icon(activeController.isDesc.value
+                    ? Icons.keyboard_double_arrow_down
+                    : Icons.keyboard_double_arrow_up)),
+            activeController.taskBoardNames.value.length == 1
+                ? const SizedBox()
+                : IconButton(
+                    onPressed: () => showDialog<String>(
+                          context: context,
+                          builder: (BuildContext context) => Dialog(
+                            child: _buildDeleteWarning(),
+                          ),
+                        ),
+                    icon: Icon(
+                      Icons.delete,
+                      color: Theme.of(context).colorScheme.error,
+                    )),
+          ],
+        ),
       ),
     );
   }
