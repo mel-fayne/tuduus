@@ -1,4 +1,5 @@
 import 'package:activity/activity.dart';
+import 'package:activity/core/types/active_type.dart';
 import 'package:quickeydb/quickeydb.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tuduus/data/schema.dart';
@@ -13,11 +14,12 @@ class MainController extends ActiveController {
     return [];
   }
 
+  ActiveBool isLoading = ActiveBool(false);
   ActiveString userName = ActiveString('');
   ActiveString currentBoard = ActiveString(defaultBoard);
   ActiveType<List<String>> taskBoardNames = ActiveType([]);
   ActiveType<List<Task>> completeTasks = ActiveType([]);
-  ActiveType<List<Task>> unCompleteTasks = ActiveType([]);
+  ActiveType<List<Task>> inCompleteTasks = ActiveType([]);
 
   Future<void> homeInit() async {
     await getUserDetails();
@@ -29,21 +31,21 @@ class MainController extends ActiveController {
   // --------- TASKS
 
   Future<void> getTasks() async {
-    // get tasks based on current board
-    List<Task?> allTasks = await QuickeyDB.getInstance!<TaskSchema>()!
+    var allTasks = await QuickeyDB.getInstance!<TaskSchema>()!
         .where({'board == ?': currentBoard.value}).order(
             ['priority'], 'DESC').toList();
-    List<Task> boardTasks =
-        allTasks.where((task) => task != null).cast<Task>().toList();
-    completeTasks =
-        ActiveType(boardTasks.where((e) => e.isComplete == true).toList());
-    unCompleteTasks =
-        ActiveType(boardTasks.where((e) => e.isComplete == false).toList());
+    allTasks = allTasks.where((task) => task != null).cast<Task>().toList();
+
+    completeTasks = ActiveType(
+        allTasks.where((e) => e!.isComplete == true).toList() as List<Task>);
+    inCompleteTasks = ActiveType(
+        allTasks.where((e) => e!.isComplete == false).toList() as List<Task>);
+
     notifyActivities([]);
   }
 
   Future<void> updateTaskComplete(Task selectedTask) async {
-    QuickeyDB.getInstance!<TaskSchema>()!
+    await QuickeyDB.getInstance!<TaskSchema>()!
         .update(selectedTask..isComplete = !selectedTask.isComplete);
     await getTasks();
   }
@@ -62,12 +64,12 @@ class MainController extends ActiveController {
 
   Future<void> updateTask(int updateId, Task newTask) async {
     newTask.id = updateId;
-    QuickeyDB.getInstance!<TaskSchema>()!.update(newTask);
+    await QuickeyDB.getInstance!<TaskSchema>()!.update(newTask);
     await getTasks();
   }
 
   Future<void> deleteTask(Task newTask) async {
-    QuickeyDB.getInstance!<TaskSchema>()!.delete(newTask);
+    await QuickeyDB.getInstance!<TaskSchema>()!.delete(newTask);
     await getTasks();
   }
 

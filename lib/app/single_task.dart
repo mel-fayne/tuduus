@@ -35,8 +35,8 @@ class _SingleTaskViewState extends ActiveState<SingleTaskView, MainController> {
     if (widget.currentTask != null && widget.isEdit) {
       titleCtrl.text = widget.currentTask!.title;
       descCtrl.text = widget.currentTask!.description ?? '';
-      titleCtrl.text = widget.currentTask!.title;
-      titleCtrl.text = widget.currentTask!.title;
+      priority = getPriority(widget.currentTask!.priority);
+      isComplete = widget.currentTask!.isComplete;
     }
   }
 
@@ -53,6 +53,7 @@ class _SingleTaskViewState extends ActiveState<SingleTaskView, MainController> {
                   child: GestureDetector(
                     onTap: () async {
                       activeController.deleteTask(widget.currentTask!);
+                      Navigator.pop(context);
                     },
                     child: Text(
                       'Delete Task',
@@ -106,11 +107,12 @@ class _SingleTaskViewState extends ActiveState<SingleTaskView, MainController> {
                               title: Text(
                                 e,
                                 style: TextStyle(
+                                    fontWeight: FontWeight.bold,
                                     color: e == 'HIGH'
                                         ? Colors.red
                                         : e == 'MID'
-                                            ? Colors.green
-                                            : Colors.blue),
+                                            ? Colors.amber
+                                            : Colors.green),
                               ),
                               leading: Radio<String>(
                                 value: e,

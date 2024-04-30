@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tuduus/app/single_task.dart';
 import 'package:tuduus/data/task.dart';
 import 'package:tuduus/main_controller.dart';
 
@@ -10,31 +11,43 @@ class TaskTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: CheckboxListTile(
-        onChanged: (value) async {
-          await mainCtrl.updateTaskComplete(selectedTask);
-        },
-        value: selectedTask.isComplete,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(selectedTask.title),
-            Container(
-              height: 20,
-              width: 20,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: selectedTask.priority == 2
+    return ListTile(
+        leading: Checkbox(
+          onChanged: (value) async {
+            await mainCtrl.updateTaskComplete(selectedTask);
+          },
+          value: selectedTask.isComplete,
+        ),
+        title: Text(
+          selectedTask.title,
+          style: TextStyle(
+              decoration: selectedTask.isComplete
+                  ? TextDecoration.lineThrough
+                  : TextDecoration.none),
+        ),
+        trailing: Container(
+          height: 15,
+          width: 15,
+          decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: selectedTask.isComplete
+                  ? Colors.grey
+                  : selectedTask.priority == 2
                       ? Colors.red
                       : selectedTask.priority == 1
-                          ? Colors.green
-                          : Colors.blue),
-            )
-          ],
+                          ? Colors.amber
+                          : Colors.green),
         ),
-      ),
-    );
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SingleTaskView(
+                  currentTask: selectedTask,
+                  activeController: mainCtrl,
+                  isEdit: true),
+            ),
+          );
+        });
   }
 }

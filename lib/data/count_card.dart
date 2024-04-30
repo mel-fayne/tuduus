@@ -7,8 +7,8 @@ class CountWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 25,
-      height: 25,
+      width: 20,
+      height: 20,
       margin: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -18,7 +18,7 @@ class CountWidget extends StatelessWidget {
           count.toString(),
           style: TextStyle(
             color: Theme.of(context).colorScheme.tertiaryContainer,
-            fontSize: 20,
+            fontSize: 16,
             decoration: TextDecoration.none,
           ),
         ),

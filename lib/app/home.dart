@@ -17,6 +17,7 @@ class HomeView extends ActiveView<MainController> {
 
 class _HomeViewState extends ActiveState<HomeView, MainController> {
   _HomeViewState(super.activeController);
+  bool _isCompletedExpanded = false;
 
   @override
   void initState() {
@@ -34,13 +35,10 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
           children: [
             _buildBoardHeader(),
             const Divider(),
-            const SizedBox(
-              height: 20,
-            ),
-            activeController.unCompleteTasks.value.isEmpty
+            activeController.inCompleteTasks.value.isEmpty
                 ? _buildNoTasks()
-                : _buildUnCompleteTasks(),
-            activeController.unCompleteTasks.value.isEmpty
+                : _buildInCompleteTasks(),
+            activeController.completeTasks.value.isEmpty
                 ? const SizedBox()
                 : _buildCompletedList()
           ],
@@ -72,7 +70,7 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
           style: TextStyle(
               color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.bold,
-              fontSize: 42),
+              fontSize: 36),
         ),
         Text(
           "You can get it done today!",
@@ -89,7 +87,6 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
               child: DropdownButton<String>(
                 value: activeController.currentBoard.value,
                 icon: const Icon(Icons.keyboard_arrow_down),
-                elevation: 4,
                 underline: Container(),
                 onChanged: (String? newValue) async {
                   if (newValue != null) {
@@ -110,6 +107,8 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
                 onPressed: () => showDialog<String>(
                       context: context,
                       builder: (BuildContext context) => Dialog(
+                        insetPadding: const EdgeInsets.symmetric(
+                            vertical: 250, horizontal: 25),
                         child: BoardDialog(
                           mainCtrl: activeController,
                           isEdit: false,
@@ -123,57 +122,72 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
     );
   }
 
-  Widget _buildUnCompleteTasks() {
+  Widget _buildInCompleteTasks() {
     return ListView.builder(
         key: UniqueKey(),
         shrinkWrap: true,
         physics: const ClampingScrollPhysics(),
         itemBuilder: (context, index) {
           return TaskTile(
-            selectedTask: activeController.unCompleteTasks.value[index],
+            selectedTask: activeController.inCompleteTasks.value[index],
             mainCtrl: activeController,
           );
         },
-        itemCount: activeController.unCompleteTasks.value.length);
+        itemCount: activeController.inCompleteTasks.value.length);
   }
 
   Widget _buildCompletedList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const SizedBox(
+          height: 10,
+        ),
         const Divider(),
         ExpansionPanelList(
           expandedHeaderPadding: const EdgeInsets.symmetric(vertical: 5),
+          expansionCallback: (int index, bool isExpanded) {
+            setState(() {
+              setState(() {
+                _isCompletedExpanded = !_isCompletedExpanded;
+              });
+            });
+          },
           children: [
             ExpansionPanel(
-              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+              backgroundColor: Theme.of(context).colorScheme.background,
               canTapOnHeader: true,
+              isExpanded: _isCompletedExpanded,
               headerBuilder: (BuildContext context, bool isExpanded) {
-                return Row(
-                  children: [
-                    const Text('Completed'),
-                    CountWidget(
-                      count: activeController.completeTasks.value.length,
-                    ),
-                  ],
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Completed',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      CountWidget(
+                        count: activeController.completeTasks.value.length,
+                      ),
+                    ],
+                  ),
                 );
               },
-              body: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 25),
-                child: ListView.builder(
-                    key: UniqueKey(),
-                    shrinkWrap: true,
-                    physics: const ClampingScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return TaskTile(
-                        selectedTask:
-                            activeController.completeTasks.value[index],
-                        mainCtrl: activeController,
-                      );
-                    },
-                    itemCount: activeController.completeTasks.value.length),
-              ),
+              body: _isCompletedExpanded
+                  ? ListView.builder(
+                      key: UniqueKey(),
+                      shrinkWrap: true,
+                      physics: const ClampingScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return TaskTile(
+                          selectedTask:
+                              activeController.completeTasks.value[index],
+                          mainCtrl: activeController,
+                        );
+                      },
+                      itemCount: activeController.completeTasks.value.length)
+                  : const SizedBox.shrink(),
             )
           ],
         ),
