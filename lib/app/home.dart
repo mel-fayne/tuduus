@@ -40,7 +40,8 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
             const Divider(),
             _buildPriorityFilters(),
             const Divider(),
-            activeController.inCompleteTasks.value.isEmpty
+            activeController.inCompleteTasks.value.isEmpty &&
+                    activeController.selectedPriority.value == 'All'
                 ? _buildNoTasks()
                 : _buildInCompleteTasks(),
             activeController.completeTasks.value.isEmpty
