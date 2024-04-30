@@ -99,8 +99,6 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
                 onPressed: () => showDialog<String>(
                       context: context,
                       builder: (BuildContext context) => Dialog(
-                        insetPadding: const EdgeInsets.symmetric(
-                            vertical: 250, horizontal: 25),
                         child: BoardDialog(
                           mainCtrl: activeController,
                           isEdit: false,

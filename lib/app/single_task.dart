@@ -40,6 +40,8 @@ class _SingleTaskViewState extends ActiveState<SingleTaskView, MainController> {
       priority = getPriority(widget.currentTask!.priority);
       isComplete = widget.currentTask!.isComplete;
       boardName = widget.currentTask!.board;
+    } else {
+      boardName = activeController.currentBoard.value;
     }
   }
 
@@ -92,7 +94,7 @@ class _SingleTaskViewState extends ActiveState<SingleTaskView, MainController> {
                     Task newTask = Task(
                         title: titleCtrl.text,
                         description: descCtrl.text,
-                        board: activeController.currentBoard.value,
+                        board: boardName,
                         priority: priorityStates[priority] ?? 0,
                         isComplete: isComplete);
                     widget.isEdit
@@ -100,8 +102,7 @@ class _SingleTaskViewState extends ActiveState<SingleTaskView, MainController> {
                             widget.currentTask!.id!, newTask)
                         : await activeController.createNewTask(newTask);
                     if (context.mounted) {
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, '/home', (route) => false);
+                      Navigator.pop(context);
                     }
                   }
                 },
@@ -177,6 +178,7 @@ class _SingleTaskViewState extends ActiveState<SingleTaskView, MainController> {
                 if (newValue != null) {
                   boardName = newValue;
                 }
+                setState(() {});
               },
               dropdownList: activeController.taskBoardNames.value),
         ),

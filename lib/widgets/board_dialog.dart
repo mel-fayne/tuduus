@@ -26,49 +26,51 @@ class _BoardDialogState extends State<BoardDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(25),
-      child: Form(
-        key: boardNameForm,
-        child: Column(
-          children: [
-            Text(
-              "Create A New Board",
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            CustomFormField(
-                onValidate: (value) {
-                  if (value!.isEmpty) {
-                    return 'Please enter a board name';
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(25),
+        child: Form(
+          key: boardNameForm,
+          child: Column(
+            children: [
+              Text(
+                "Create A New Board",
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              CustomFormField(
+                  onValidate: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter a board name';
+                    }
+                    if (widget.mainCtrl.taskBoardNames.value.contains(value)) {
+                      return 'A board with this name already exists';
+                    }
+                    return null;
+                  },
+                  fieldCtrl: boardNameCtrl,
+                  label: 'Board Name',
+                  isRequired: true),
+              PrimaryButton(
+                onPressed: () async {
+                  if (boardNameForm.currentState!.validate()) {
+                    widget.isEdit
+                        ? await widget.mainCtrl
+                            .updateTaskBoard(boardNameCtrl.text)
+                        : await widget.mainCtrl
+                            .createTaskBoard(boardNameCtrl.text);
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
                   }
-                  if (widget.mainCtrl.taskBoardNames.value.contains(value)) {
-                    return 'A board with this name already exists';
-                  }
-                  return null;
                 },
-                fieldCtrl: boardNameCtrl,
-                label: 'Board Name',
-                isRequired: true),
-            PrimaryButton(
-              onPressed: () async {
-                if (boardNameForm.currentState!.validate()) {
-                  widget.isEdit
-                      ? await widget.mainCtrl
-                          .updateTaskBoard(boardNameCtrl.text)
-                      : await widget.mainCtrl
-                          .createTaskBoard(boardNameCtrl.text);
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                  }
-                }
-              },
-              isLoading: false,
-              label: widget.isEdit ? "Update Board" : "Create Board",
-            ),
-          ],
+                isLoading: false,
+                label: widget.isEdit ? "Update Board" : "Create Board",
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,5 +1,4 @@
 import 'package:activity/activity.dart';
-import 'package:activity/core/types/active_type.dart';
 import 'package:quickeydb/quickeydb.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tuduus/data/schema.dart';
@@ -31,6 +30,7 @@ class MainController extends ActiveController {
   // --------- TASKS
 
   Future<void> getTasks() async {
+    print(currentBoard.value);
     var allTasks = await QuickeyDB.getInstance!<TaskSchema>()!
         .where({'board == ?': currentBoard.value}).order(
             ['priority'], 'DESC').toList();
