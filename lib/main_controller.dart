@@ -13,16 +13,16 @@ class MainController extends ActiveController {
     return [];
   }
 
-  ActiveBool isLoading = ActiveBool(false);
   ActiveString userName = ActiveString('');
   ActiveString currentBoard = ActiveString(defaultBoard);
   ActiveType<List<String>> taskBoardNames = ActiveType([]);
   ActiveType<List<Task>> completeTasks = ActiveType([]);
   ActiveType<List<Task>> inCompleteTasks = ActiveType([]);
+  ActiveBool isDesc = ActiveBool(true);
 
   Future<void> homeInit() async {
     await getUserDetails();
-    await getTaskBoards();
+    await getBoards();
     await getTasks();
     notifyActivities([]);
   }
@@ -30,10 +30,10 @@ class MainController extends ActiveController {
   // --------- TASKS
 
   Future<void> getTasks() async {
-    print(currentBoard.value);
+    String sortOrder = isDesc.value ? 'DESC' : 'ASC';
     var allTasks = await QuickeyDB.getInstance!<TaskSchema>()!
         .where({'board == ?': currentBoard.value}).order(
-            ['priority'], 'DESC').toList();
+            ['priority'], sortOrder).toList();
     allTasks = allTasks.where((task) => task != null).cast<Task>().toList();
 
     completeTasks = ActiveType(
@@ -75,40 +75,58 @@ class MainController extends ActiveController {
 
   // --------- TASK BOARDS
 
-  Future<void> getTaskBoards() async {
+  Future<void> getBoards({String? newBoard}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String boards = prefs.getString('taskBoards') ?? defaultBoard;
     var boardNames = boards.split(",");
+
     taskBoardNames = ActiveType(boardNames);
+    currentBoard = ActiveString(newBoard ?? taskBoardNames.value[0]);
   }
 
   Future<void> createTaskBoard(String newBoardName) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String boards = prefs.getString('taskBoards') ?? defaultBoard;
     String allBoards = '$boards,$newBoardName';
-    await updateBoards(allBoards);
+
+    await updateBoards(newBoard: newBoardName, allBoards: allBoards);
+    await getTasks();
   }
 
   Future<void> updateTaskBoard(String newBoardName) async {
-    // update tasks in this board to have the new board name
+    // update all tasks in this board
+    var batch = QuickeyDB.getInstance!.database!.batch();
+    batch.update('tasks', {'board': newBoardName},
+        where: 'board = ?', whereArgs: [currentBoard.value]);
+    await batch.commit();
+    // update board
     List<String> boards =
         taskBoardNames.value.where((e) => e != currentBoard.value).toList();
-    String allBoards = '${boards.join(",")},$newBoardName';
-    await updateBoards(allBoards);
+    String allBoards =
+        boards.isEmpty ? newBoardName : '${boards.join(",")},$newBoardName';
+
+    await updateBoards(allBoards: allBoards);
   }
 
   Future<void> deleteTaskBoard() async {
     // delete all tasks in this board
+    var batch = QuickeyDB.getInstance!.database!.batch();
+    batch.delete('tasks', where: 'board = ?', whereArgs: [currentBoard.value]);
+    await batch.commit();
+    // delete board
     List<String> boards =
         taskBoardNames.value.where((e) => e != currentBoard.value).toList();
     String allBoards = boards.join(",");
-    await updateBoards(allBoards);
+
+    await updateBoards(allBoards: allBoards);
+    await getTasks();
   }
 
-  Future<void> updateBoards(String allBoards) async {
+  Future<void> updateBoards(
+      {String? newBoard, required String allBoards}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('taskBoards', allBoards);
-    await getTaskBoards();
+    await getBoards(newBoard: newBoard);
     notifyActivities([]);
   }
 

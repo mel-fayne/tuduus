@@ -34,7 +34,7 @@ class _BoardDialogState extends State<BoardDialog> {
           child: Column(
             children: [
               Text(
-                "Create A New Board",
+                widget.isEdit ? "Edit Board" : "Create A New Board",
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(
@@ -47,6 +47,9 @@ class _BoardDialogState extends State<BoardDialog> {
                     }
                     if (widget.mainCtrl.taskBoardNames.value.contains(value)) {
                       return 'A board with this name already exists';
+                    }
+                    if (value.contains(',')) {
+                      return 'A board name cannot contain a comma (,)';
                     }
                     return null;
                   },
