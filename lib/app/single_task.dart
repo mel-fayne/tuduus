@@ -40,9 +40,9 @@ class _SingleTaskViewState extends ActiveState<SingleTaskView, MainController> {
       descCtrl.text = widget.currentTask!.description ?? '';
       priority = getPriority(widget.currentTask!.priority);
       isComplete = widget.currentTask!.isComplete;
-      boardName = widget.currentTask!.board;
+      boardName = widget.currentTask!.boardName!;
     } else {
-      boardName = activeController.currentBoard.value;
+      boardName = activeController.currentBoard.value.title;
     }
   }
 
@@ -95,7 +95,7 @@ class _SingleTaskViewState extends ActiveState<SingleTaskView, MainController> {
                     Task newTask = Task(
                         title: titleCtrl.text,
                         description: descCtrl.text,
-                        board: boardName,
+                        boardName: boardName,
                         priority: priorityStates[priority] ?? 0,
                         isComplete: isComplete);
                     widget.isEdit

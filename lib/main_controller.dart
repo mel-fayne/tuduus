@@ -1,7 +1,9 @@
 import 'package:activity/activity.dart';
 import 'package:quickeydb/quickeydb.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tuduus/data/schema.dart';
+import 'package:tuduus/data/board.dart';
+import 'package:tuduus/data/schemas/board_schema.dart';
+import 'package:tuduus/data/schemas/task_schema.dart';
 import 'package:tuduus/data/task.dart';
 
 import 'utils/constants.dart';
@@ -13,13 +15,14 @@ class MainController extends ActiveController {
     return [];
   }
 
-  ActiveString userName = ActiveString('');
-  ActiveString selectedPriority = ActiveString('All');
-  ActiveString currentBoard = ActiveString(defaultBoard);
+  ActiveType<Board> currentBoard = ActiveType(Board(title: defaultBoard));
+  ActiveType<List<Board>> taskBoards = ActiveType([]);
   ActiveType<List<String>> taskBoardNames = ActiveType([]);
   ActiveType<List<Task>> completeTasks = ActiveType([]);
   ActiveType<List<Task>> inCompleteTasks = ActiveType([]);
+  ActiveString selectedPriority = ActiveString('All');
   ActiveBool isDesc = ActiveBool(true);
+  ActiveString userName = ActiveString('');
 
   Future<void> homeInit() async {
     await getUserDetails();
@@ -32,7 +35,9 @@ class MainController extends ActiveController {
 
   Future<void> getTasks() async {
     String sortOrder = isDesc.value ? 'DESC' : 'ASC';
-    final Map<String, dynamic> fetchQuery = {'board == ?': currentBoard.value};
+    final Map<String, dynamic> fetchQuery = {
+      'boardName == ?': currentBoard.value.title
+    };
     if (selectedPriority.value != "All") {
       fetchQuery['priority == ?'] = priorityStates[selectedPriority.value];
     }
@@ -61,7 +66,7 @@ class MainController extends ActiveController {
       Task(
           title: newTask.title,
           description: newTask.description,
-          board: newTask.board,
+          boardName: newTask.boardName,
           priority: newTask.priority,
           isComplete: newTask.isComplete),
     );
@@ -79,61 +84,59 @@ class MainController extends ActiveController {
     await getTasks();
   }
 
-  // --------- TASK BOARDS
-
-  Future<void> getBoards({String? newBoard}) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String boards = prefs.getString('taskBoards') ?? defaultBoard;
-    var boardNames = boards.split(",");
-
-    taskBoardNames = ActiveType(boardNames);
-    currentBoard = ActiveString(newBoard ?? taskBoardNames.value[0]);
+  Future<Board> getBoard(String boardName) async {
+    Board? board = await QuickeyDB.getInstance!<BoardSchema>()!
+        .where({'title == ?': boardName}).first;
+    return board ?? Board(title: defaultBoard);
   }
 
-  Future<void> createTaskBoard(String newBoardName) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String boards = prefs.getString('taskBoards') ?? defaultBoard;
-    String allBoards = '$boards,$newBoardName';
+  // --------- TASK BOARDS
 
-    await updateBoards(newBoard: newBoardName, allBoards: allBoards);
+  Future<void> getBoards({String? newBoardName}) async {
+    var boards = await QuickeyDB.getInstance!<BoardSchema>()!.all;
+    boards = boards.where((board) => board != null).cast<Board>().toList();
+
+    taskBoards = ActiveType(
+        boards.where((board) => board != null).cast<Board>().toList());
+    taskBoardNames = ActiveType(taskBoards.value.map((e) => e.title).toList());
+    var currBoard = newBoardName == null
+        ? boards[0]
+        : await QuickeyDB.getInstance!<BoardSchema>()!
+            .where({'title == ?': newBoardName}).first;
+    currentBoard = ActiveType(currBoard!);
+  }
+
+  Future<void> createTaskBoard(Board newBoard) async {
+    await QuickeyDB.getInstance!<BoardSchema>()?.create(
+      Board(title: newBoard.title),
+    );
+    await getBoards(newBoardName: newBoard.title);
     await getTasks();
   }
 
-  Future<void> updateTaskBoard(String newBoardName) async {
+  Future<void> updateTaskBoard(Board newBoard) async {
     // update all tasks in this board
     var batch = QuickeyDB.getInstance!.database!.batch();
-    batch.update('tasks', {'board': newBoardName},
-        where: 'board = ?', whereArgs: [currentBoard.value]);
+    batch.update('tasks', {'boardName': newBoard.title},
+        where: 'boardName = ?', whereArgs: [currentBoard.value.title]);
     await batch.commit();
     // update board
-    List<String> boards =
-        taskBoardNames.value.where((e) => e != currentBoard.value).toList();
-    String allBoards =
-        boards.isEmpty ? newBoardName : '${boards.join(",")},$newBoardName';
-
-    await updateBoards(allBoards: allBoards);
+    newBoard.id = currentBoard.value.id;
+    await QuickeyDB.getInstance!<BoardSchema>()!.update(newBoard);
+    await getBoards(newBoardName: newBoard.title);
+    await getTasks();
   }
 
   Future<void> deleteTaskBoard() async {
     // delete all tasks in this board
     var batch = QuickeyDB.getInstance!.database!.batch();
-    batch.delete('tasks', where: 'board = ?', whereArgs: [currentBoard.value]);
+    batch.delete('tasks',
+        where: 'boardName = ?', whereArgs: [currentBoard.value.title]);
     await batch.commit();
     // delete board
-    List<String> boards =
-        taskBoardNames.value.where((e) => e != currentBoard.value).toList();
-    String allBoards = boards.join(",");
-
-    await updateBoards(allBoards: allBoards);
+    await QuickeyDB.getInstance!<BoardSchema>()!.delete(currentBoard.value);
+    await getBoards();
     await getTasks();
-  }
-
-  Future<void> updateBoards(
-      {String? newBoard, required String allBoards}) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('taskBoards', allBoards);
-    await getBoards(newBoard: newBoard);
-    notifyActivities([]);
   }
 
   // --------- USER DETAILS

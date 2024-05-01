@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tuduus/data/board.dart';
 import 'package:tuduus/main_controller.dart';
 import 'package:tuduus/widgets/form_field.dart';
 import 'package:tuduus/widgets/primary_button.dart';
@@ -20,7 +21,7 @@ class _BoardDialogState extends State<BoardDialog> {
   void initState() {
     super.initState();
     widget.isEdit
-        ? boardNameCtrl.text = widget.mainCtrl.currentBoard.value
+        ? boardNameCtrl.text = widget.mainCtrl.currentBoard.value.title
         : '';
   }
 
@@ -59,11 +60,10 @@ class _BoardDialogState extends State<BoardDialog> {
               PrimaryButton(
                 onPressed: () async {
                   if (boardNameForm.currentState!.validate()) {
+                    Board newBoard = Board(title: boardNameCtrl.text);
                     widget.isEdit
-                        ? await widget.mainCtrl
-                            .updateTaskBoard(boardNameCtrl.text)
-                        : await widget.mainCtrl
-                            .createTaskBoard(boardNameCtrl.text);
+                        ? await widget.mainCtrl.updateTaskBoard(newBoard)
+                        : await widget.mainCtrl.createTaskBoard(newBoard);
                     if (context.mounted) {
                       Navigator.pop(context);
                     }

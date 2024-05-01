@@ -8,10 +8,11 @@ class TaskSchema extends DataAccessObject<Task> {
           CREATE TABLE tasks (
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
+            boardName TEXT NOT NULL,
             description TEXT,
-            board TEXT NOT NULL,
             priority INTEGER DEFAULT 0 NOT NULL,
-            isComplete INTEGER DEFAULT 0 NOT NULL
+            isComplete INTEGER DEFAULT 0 NOT NULL,
+            FOREIGN KEY (boardName) REFERENCES boards (title)
           );
           ''',
           relations: [],

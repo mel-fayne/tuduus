@@ -4,7 +4,9 @@ import 'package:quickeydb/quickeydb.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tuduus/app/home.dart';
 import 'package:tuduus/app/onboarding.dart';
-import 'package:tuduus/data/schema.dart';
+import 'package:tuduus/data/board.dart';
+import 'package:tuduus/data/schemas/board_schema.dart';
+import 'package:tuduus/data/schemas/task_schema.dart';
 import 'package:tuduus/main_controller.dart';
 import 'package:tuduus/themes.dart';
 
@@ -15,9 +17,6 @@ bool? isUserOnboarded = false;
 Future<bool?> checkIsOnboarded() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool? isOnboarded = prefs.getBool('isOnboarded');
-  if (isOnboarded != true) {
-    await prefs.setString('taskBoards', defaultBoard);
-  }
   return isOnboarded;
 }
 
@@ -28,10 +27,16 @@ void main() async {
     persist: false,
     dbVersion: 1,
     dataAccessObjects: [
+      BoardSchema(),
       TaskSchema(),
     ],
     dbName: 'tuduus_v1',
   );
+  if (isUserOnboarded != true) {
+    await QuickeyDB.getInstance!<BoardSchema>()?.create(
+      Board(title: defaultBoard),
+    );
+  }
   runApp(const MyApp());
 }
 

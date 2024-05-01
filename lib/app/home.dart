@@ -174,10 +174,13 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
             SizedBox(
               width: 180,
               child: DropDownField(
-                  dropdownValue: activeController.currentBoard.value,
+                  dropdownValue: activeController.currentBoard.value.title,
                   onSelected: (String? newValue) async {
                     if (newValue != null) {
-                      activeController.currentBoard = ActiveString(newValue);
+                      activeController.currentBoard = ActiveType(
+                          activeController.taskBoards.value
+                              .where((e) => e.title == newValue)
+                              .first);
                       await activeController.getTasks();
                     }
                   },
@@ -322,7 +325,7 @@ Are you sure you want to delete your '${activeController.currentBoard.value}' ta
           PrimaryButton(
               onPressed: () async {
                 await activeController.deleteTaskBoard();
-                if (context.mounted) {
+                if (mounted) {
                   Navigator.pop(context);
                 }
               },

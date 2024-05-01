@@ -1,15 +1,15 @@
 class Task {
   int? id;
+  String? boardName;
   String title;
   String? description;
-  String board;
   int priority;
   bool isComplete;
 
   Task({
     this.id,
     required this.title,
-    required this.board,
+    this.boardName,
     this.description,
     this.priority = 0,
     this.isComplete = false,
@@ -19,7 +19,7 @@ class Task {
       : id = map['id'],
         title = map['title'],
         description = map['description'],
-        board = map['board'],
+        boardName = map['boardName'],
         priority = map['priority'],
         isComplete = map['isComplete'] == 0 ? false : true;
 
@@ -27,7 +27,7 @@ class Task {
         'id': id,
         'title': title,
         'description': description,
-        'board': board,
+        'boardName': boardName,
         'priority': priority,
         'isComplete': isComplete == false ? 0 : 1,
       };
@@ -36,8 +36,8 @@ class Task {
         'id': id,
         'title': title,
         'description': description,
-        'board': board,
         'priority': priority,
+        'boardName': boardName,
         'isComplete': isComplete == false ? 0 : 1,
       };
 }
