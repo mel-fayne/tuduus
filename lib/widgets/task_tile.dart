@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tuduus/app/single_task.dart';
-import 'package:tuduus/data/task.dart';
-import 'package:tuduus/main_controller.dart';
+import 'package:tuduus/data/models/task.dart';
+import 'package:tuduus/controllers/main_controller.dart';
 
 class TaskTile extends StatelessWidget {
   final Task selectedTask;

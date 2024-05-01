@@ -1,8 +1,8 @@
 import 'package:activity/activity.dart';
 import 'package:flutter/material.dart';
 import 'package:tuduus/app/single_task.dart';
-import 'package:tuduus/data/count_card.dart';
-import 'package:tuduus/main_controller.dart';
+import 'package:tuduus/widgets/count_card.dart';
+import 'package:tuduus/controllers/main_controller.dart';
 import 'package:tuduus/utils/constants.dart';
 import 'package:tuduus/widgets/board_dialog.dart';
 import 'package:tuduus/widgets/dropdown_field.dart';

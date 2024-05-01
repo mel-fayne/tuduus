@@ -1,7 +1,7 @@
 import 'package:activity/activity.dart';
 import 'package:flutter/material.dart';
-import 'package:tuduus/data/task.dart';
-import 'package:tuduus/main_controller.dart';
+import 'package:tuduus/data/models/task.dart';
+import 'package:tuduus/controllers/main_controller.dart';
 import 'package:tuduus/utils/constants.dart';
 import 'package:tuduus/utils/functions.dart';
 import 'package:tuduus/widgets/dropdown_field.dart';

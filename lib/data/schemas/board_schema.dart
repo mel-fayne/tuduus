@@ -1,5 +1,5 @@
 import 'package:quickeydb/quickeydb.dart';
-import 'package:tuduus/data/board.dart';
+import 'package:tuduus/data/models/board.dart';
 
 class BoardSchema extends DataAccessObject<Board> {
   BoardSchema()

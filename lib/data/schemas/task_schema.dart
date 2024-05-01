@@ -1,5 +1,5 @@
 import 'package:quickeydb/quickeydb.dart';
-import 'package:tuduus/data/task.dart';
+import 'package:tuduus/data/models/task.dart';
 
 class TaskSchema extends DataAccessObject<Task> {
   TaskSchema()

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tuduus/data/board.dart';
-import 'package:tuduus/main_controller.dart';
+import 'package:tuduus/data/models/board.dart';
+import 'package:tuduus/controllers/main_controller.dart';
 import 'package:tuduus/widgets/form_field.dart';
 import 'package:tuduus/widgets/primary_button.dart';
 

@@ -1,12 +1,12 @@
 import 'package:activity/activity.dart';
 import 'package:quickeydb/quickeydb.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tuduus/data/board.dart';
+import 'package:tuduus/data/models/board.dart';
 import 'package:tuduus/data/schemas/board_schema.dart';
 import 'package:tuduus/data/schemas/task_schema.dart';
-import 'package:tuduus/data/task.dart';
+import 'package:tuduus/data/models/task.dart';
 
-import 'utils/constants.dart';
+import '../utils/constants.dart';
 
 class MainController extends ActiveController {
   /// This override is needed

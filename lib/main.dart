@@ -4,11 +4,11 @@ import 'package:quickeydb/quickeydb.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tuduus/app/home.dart';
 import 'package:tuduus/app/onboarding.dart';
-import 'package:tuduus/data/board.dart';
+import 'package:tuduus/data/models/board.dart';
 import 'package:tuduus/data/schemas/board_schema.dart';
 import 'package:tuduus/data/schemas/task_schema.dart';
-import 'package:tuduus/main_controller.dart';
-import 'package:tuduus/themes.dart';
+import 'package:tuduus/controllers/main_controller.dart';
+import 'package:tuduus/theme/themes.dart';
 
 import 'utils/constants.dart';
 
