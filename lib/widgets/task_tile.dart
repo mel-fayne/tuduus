@@ -44,6 +44,10 @@ class TaskTile extends StatelessWidget {
                   ? TextDecoration.lineThrough
                   : TextDecoration.none),
         ),
+        subtitle: selectedTask.isComplete
+            ? null
+            : Text(selectedTask.description ?? '',
+                softWrap: true, style: Theme.of(context).textTheme.bodySmall),
         trailing: mainCtrl.isStarredView.value
             ? Container(
                 decoration: BoxDecoration(
