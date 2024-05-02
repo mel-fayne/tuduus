@@ -36,6 +36,14 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 20),
+            Center(
+              child: Image.asset(
+                'assets/images/tuduus-v2-logo.png',
+                height: 50,
+              ),
+            ),
+            const Divider(),
             _buildBoardHeader(),
             const Divider(),
             _buildPriorityFilters(),
@@ -54,17 +62,19 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
         ),
       ),
       bottomSheet: _buildBottomSheet(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => SingleTaskView(
-                    activeController: activeController, isEdit: false)),
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: activeController.isAllView.value
+          ? const SizedBox()
+          : FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SingleTaskView(
+                          activeController: activeController, isEdit: false)),
+                );
+              },
+              child: const Icon(Icons.add),
+            ),
     );
   }
 
@@ -72,6 +82,7 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const SizedBox(height: 10),
         Row(
           children: [
             Icon(
@@ -103,22 +114,24 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
   Widget _buildBottomSheet() {
     return Container(
       color: Theme.of(context).colorScheme.secondaryContainer,
-      height: MediaQuery.of(context).size.height / 10,
+      height: MediaQuery.of(context).size.height / 12,
       child: Padding(
         padding: const EdgeInsets.only(left: 20),
         child: Row(
           children: [
-            IconButton(
-                onPressed: () => showDialog<String>(
-                      context: context,
-                      builder: (BuildContext context) => Dialog(
-                        child: BoardDialog(
-                          mainCtrl: activeController,
-                          isEdit: true,
+            activeController.isAllView.value
+                ? const SizedBox()
+                : IconButton(
+                    onPressed: () => showDialog<String>(
+                          context: context,
+                          builder: (BuildContext context) => Dialog(
+                            child: BoardDialog(
+                              mainCtrl: activeController,
+                              isEdit: true,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                icon: const Icon(Icons.edit_square)),
+                    icon: const Icon(Icons.edit_square)),
             IconButton(
                 onPressed: () async {
                   activeController.isDesc =
@@ -128,7 +141,8 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
                 icon: Icon(activeController.isDesc.value
                     ? Icons.keyboard_double_arrow_down
                     : Icons.keyboard_double_arrow_up)),
-            activeController.taskBoardNames.value.length == 1
+            activeController.isAllView.value ||
+                    activeController.taskBoardNames.value.length == 1
                 ? const SizedBox()
                 : IconButton(
                     onPressed: () => showDialog<String>(
@@ -151,36 +165,27 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(
-          height: 60,
-        ),
-        Text(
-          "Hello ${activeController.userName.value}",
-          style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-              fontSize: 36),
-        ),
-        Text(
-          "You can get it done today!",
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        const SizedBox(
-          height: 10,
-        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
               width: 180,
               child: DropDownField(
-                  dropdownValue: activeController.currentBoard.value.title,
+                  dropdownValue: activeController.selectedView.value,
                   onSelected: (String? newValue) async {
                     if (newValue != null) {
-                      activeController.currentBoard = ActiveType(
-                          activeController.taskBoards.value
-                              .where((e) => e.title == newValue)
-                              .first);
+                      if (newValue == allBoardsTitle) {
+                        activeController.isAllView = ActiveBool(true);
+                        activeController.selectedView =
+                            ActiveString(allBoardsTitle);
+                      } else {
+                        activeController.isAllView = ActiveBool(false);
+                        activeController.selectedView = ActiveString(newValue);
+                        activeController.currentBoard = ActiveType(
+                            activeController.taskBoards.value
+                                .where((e) => e.title == newValue)
+                                .first);
+                      }
                       await activeController.getTasks();
                     }
                   },
@@ -284,7 +289,7 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
         children: [
           Image.asset(
             'assets/images/rest.png',
-            height: 250,
+            height: 200,
           ),
           const SizedBox(
             height: 10,

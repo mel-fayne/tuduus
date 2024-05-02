@@ -7,7 +7,8 @@ class BoardSchema extends DataAccessObject<Board> {
           '''
           CREATE TABLE boards (
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL
+            title TEXT NOT NULL,
+            boardColorIdx INTEGER DEFAULT 0 NOT NULL
           );
           ''',
           relations: [],

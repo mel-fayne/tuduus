@@ -15,6 +15,8 @@ class MainController extends ActiveController {
     return [];
   }
 
+  ActiveBool isAllView = ActiveBool(false);
+  ActiveString selectedView = ActiveString(defaultBoard);
   ActiveType<Board> currentBoard = ActiveType(Board(title: defaultBoard));
   ActiveType<List<Board>> taskBoards = ActiveType([]);
   ActiveType<List<String>> taskBoardNames = ActiveType([]);
@@ -35,9 +37,14 @@ class MainController extends ActiveController {
 
   Future<void> getTasks() async {
     String sortOrder = isDesc.value ? 'DESC' : 'ASC';
-    final Map<String, dynamic> fetchQuery = {
-      'boardName == ?': currentBoard.value.title
-    };
+    final Map<String, dynamic> fetchQuery = {};
+
+    // filter by board
+    if (!isAllView.value) {
+      fetchQuery['boardName == ?'] = currentBoard.value.title;
+    }
+
+    // filter by priority
     if (selectedPriority.value != "All") {
       fetchQuery['priority == ?'] = priorityStates[selectedPriority.value];
     }
@@ -98,7 +105,8 @@ class MainController extends ActiveController {
 
     taskBoards = ActiveType(
         boards.where((board) => board != null).cast<Board>().toList());
-    taskBoardNames = ActiveType(taskBoards.value.map((e) => e.title).toList());
+    taskBoardNames =
+        ActiveType([allBoardsTitle, ...taskBoards.value.map((e) => e.title)]);
     var currBoard = newBoardName == null
         ? boards[0]
         : await QuickeyDB.getInstance!<BoardSchema>()!
