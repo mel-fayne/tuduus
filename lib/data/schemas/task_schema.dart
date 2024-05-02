@@ -12,6 +12,7 @@ class TaskSchema extends DataAccessObject<Task> {
             description TEXT,
             priority INTEGER DEFAULT 0 NOT NULL,
             isComplete INTEGER DEFAULT 0 NOT NULL,
+            isStarred INTEGER DEFAULT 0 NOT NULL,
             FOREIGN KEY (boardName) REFERENCES boards (title)
           );
           ''',

@@ -15,7 +15,7 @@ class MainController extends ActiveController {
     return [];
   }
 
-  ActiveBool isAllView = ActiveBool(false);
+  ActiveBool isStarredView = ActiveBool(false);
   ActiveString selectedView = ActiveString(defaultBoard);
   ActiveType<Board> currentBoard = ActiveType(Board(title: defaultBoard));
   ActiveType<List<Board>> taskBoards = ActiveType([]);
@@ -40,7 +40,9 @@ class MainController extends ActiveController {
     final Map<String, dynamic> fetchQuery = {};
 
     // filter by board
-    if (!isAllView.value) {
+    if (isStarredView.value) {
+      fetchQuery['isStarred == ?'] = true;
+    } else {
       fetchQuery['boardName == ?'] = currentBoard.value.title;
     }
 
@@ -112,12 +114,11 @@ class MainController extends ActiveController {
         : await QuickeyDB.getInstance!<BoardSchema>()!
             .where({'title == ?': newBoardName}).first;
     currentBoard = ActiveType(currBoard!);
+    selectedView = ActiveString(currBoard.title);
   }
 
   Future<void> createTaskBoard(Board newBoard) async {
-    await QuickeyDB.getInstance!<BoardSchema>()?.create(
-      Board(title: newBoard.title),
-    );
+    await QuickeyDB.getInstance!<BoardSchema>()?.create(newBoard);
     await getBoards(newBoardName: newBoard.title);
     await getTasks();
   }
@@ -152,7 +153,7 @@ class MainController extends ActiveController {
   Future<void> getUserDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String name = prefs.getString('userName') ?? '';
-    userName = ActiveString(name);
+    userName = ActiveString(name != '' ? name[0] : '');
   }
 
   Future<void> handleOnboard(String userName) async {

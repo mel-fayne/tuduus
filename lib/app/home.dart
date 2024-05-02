@@ -31,19 +31,28 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Image.asset(
+          'assets/images/tuduus-v2-logo.png',
+          height: 50,
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: CircleAvatar(
+              radius: 15,
+              child: Text(activeController.userName.value,
+                  style: Theme.of(context).textTheme.bodyLarge),
+            ),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(25),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 20),
-            Center(
-              child: Image.asset(
-                'assets/images/tuduus-v2-logo.png',
-                height: 50,
-              ),
-            ),
-            const Divider(),
             _buildBoardHeader(),
             const Divider(),
             _buildPriorityFilters(),
@@ -62,7 +71,7 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
         ),
       ),
       bottomSheet: _buildBottomSheet(),
-      floatingActionButton: activeController.isAllView.value
+      floatingActionButton: activeController.isStarredView.value
           ? const SizedBox()
           : FloatingActionButton(
               onPressed: () {
@@ -75,89 +84,6 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
               },
               child: const Icon(Icons.add),
             ),
-    );
-  }
-
-  Widget _buildPriorityFilters() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Icon(
-              Icons.filter_alt,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const Text("Filter by Priority"),
-          ],
-        ),
-        Wrap(
-          children: ['All', ...priorityStates.keys]
-              .map((e) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: ChoiceChip(
-                      label: Text(e),
-                      selected: activeController.selectedPriority.value == e,
-                      onSelected: (value) async {
-                        activeController.selectedPriority = ActiveString(e);
-                        await activeController.getTasks();
-                      },
-                    ),
-                  ))
-              .toList(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBottomSheet() {
-    return Container(
-      color: Theme.of(context).colorScheme.secondaryContainer,
-      height: MediaQuery.of(context).size.height / 12,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 20),
-        child: Row(
-          children: [
-            activeController.isAllView.value
-                ? const SizedBox()
-                : IconButton(
-                    onPressed: () => showDialog<String>(
-                          context: context,
-                          builder: (BuildContext context) => Dialog(
-                            child: BoardDialog(
-                              mainCtrl: activeController,
-                              isEdit: true,
-                            ),
-                          ),
-                        ),
-                    icon: const Icon(Icons.edit_square)),
-            IconButton(
-                onPressed: () async {
-                  activeController.isDesc =
-                      ActiveBool(!activeController.isDesc.value);
-                  await activeController.getTasks();
-                },
-                icon: Icon(activeController.isDesc.value
-                    ? Icons.keyboard_double_arrow_down
-                    : Icons.keyboard_double_arrow_up)),
-            activeController.isAllView.value ||
-                    activeController.taskBoardNames.value.length == 1
-                ? const SizedBox()
-                : IconButton(
-                    onPressed: () => showDialog<String>(
-                          context: context,
-                          builder: (BuildContext context) => Dialog(
-                            child: _buildDeleteWarning(),
-                          ),
-                        ),
-                    icon: Icon(
-                      Icons.delete,
-                      color: Theme.of(context).colorScheme.error,
-                    )),
-          ],
-        ),
-      ),
     );
   }
 
@@ -175,11 +101,11 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
                   onSelected: (String? newValue) async {
                     if (newValue != null) {
                       if (newValue == allBoardsTitle) {
-                        activeController.isAllView = ActiveBool(true);
+                        activeController.isStarredView = ActiveBool(true);
                         activeController.selectedView =
                             ActiveString(allBoardsTitle);
                       } else {
-                        activeController.isAllView = ActiveBool(false);
+                        activeController.isStarredView = ActiveBool(false);
                         activeController.selectedView = ActiveString(newValue);
                         activeController.currentBoard = ActiveType(
                             activeController.taskBoards.value
@@ -280,6 +206,89 @@ class _HomeViewState extends ActiveState<HomeView, MainController> {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildPriorityFilters() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Icon(
+              Icons.filter_alt,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const Text("Filter by Priority"),
+          ],
+        ),
+        Wrap(
+          children: ['All', ...priorityStates.keys]
+              .map((e) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: ChoiceChip(
+                      label: Text(e),
+                      selected: activeController.selectedPriority.value == e,
+                      onSelected: (value) async {
+                        activeController.selectedPriority = ActiveString(e);
+                        await activeController.getTasks();
+                      },
+                    ),
+                  ))
+              .toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomSheet() {
+    return Container(
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      height: MediaQuery.of(context).size.height / 12,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 20),
+        child: Row(
+          children: [
+            activeController.isStarredView.value
+                ? const SizedBox()
+                : IconButton(
+                    onPressed: () => showDialog<String>(
+                          context: context,
+                          builder: (BuildContext context) => Dialog(
+                            child: BoardDialog(
+                              mainCtrl: activeController,
+                              isEdit: true,
+                            ),
+                          ),
+                        ),
+                    icon: const Icon(Icons.edit_square)),
+            IconButton(
+                onPressed: () async {
+                  activeController.isDesc =
+                      ActiveBool(!activeController.isDesc.value);
+                  await activeController.getTasks();
+                },
+                icon: Icon(activeController.isDesc.value
+                    ? Icons.keyboard_double_arrow_down
+                    : Icons.keyboard_double_arrow_up)),
+            activeController.isStarredView.value ||
+                    activeController.taskBoardNames.value.length == 1
+                ? const SizedBox()
+                : IconButton(
+                    onPressed: () => showDialog<String>(
+                          context: context,
+                          builder: (BuildContext context) => Dialog(
+                            child: _buildDeleteWarning(),
+                          ),
+                        ),
+                    icon: Icon(
+                      Icons.delete,
+                      color: Theme.of(context).colorScheme.error,
+                    )),
+          ],
+        ),
+      ),
     );
   }
 

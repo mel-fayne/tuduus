@@ -5,6 +5,7 @@ class Task {
   String? description;
   int priority;
   bool isComplete;
+  bool isStarred;
 
   Task({
     this.id,
@@ -13,6 +14,7 @@ class Task {
     this.description,
     this.priority = 0,
     this.isComplete = false,
+    this.isStarred = false,
   });
 
   Task.fromMap(Map<String?, dynamic> map)
@@ -21,7 +23,8 @@ class Task {
         description = map['description'],
         boardName = map['boardName'],
         priority = map['priority'],
-        isComplete = map['isComplete'] == 0 ? false : true;
+        isComplete = map['isComplete'] == 0 ? false : true,
+        isStarred = map['isStarred'] == 0 ? false : true;
 
   Map<String, dynamic> toMap() => {
         'id': id,
@@ -30,6 +33,7 @@ class Task {
         'boardName': boardName,
         'priority': priority,
         'isComplete': isComplete == false ? 0 : 1,
+        'isStarred': isStarred == false ? 0 : 1,
       };
 
   Map<String, dynamic> toTableMap() => {
@@ -39,5 +43,6 @@ class Task {
         'priority': priority,
         'boardName': boardName,
         'isComplete': isComplete == false ? 0 : 1,
+        'isStarred': isStarred == false ? 0 : 1,
       };
 }

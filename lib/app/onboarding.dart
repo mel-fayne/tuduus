@@ -48,6 +48,7 @@ class _OnboardingViewState extends ActiveState<OnboardingView, MainController> {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
             ),
+            const SizedBox(height: 20),
             Form(
               key: _userForm,
               child: CustomFormField(
@@ -61,6 +62,7 @@ class _OnboardingViewState extends ActiveState<OnboardingView, MainController> {
                   label: 'What should we call you?',
                   isRequired: true),
             ),
+            const SizedBox(height: 10),
             PrimaryButton(
               onPressed: () async {
                 if (_userForm.currentState!.validate()) {

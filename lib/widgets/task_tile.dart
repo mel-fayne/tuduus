@@ -33,11 +33,9 @@ class TaskTile extends StatelessWidget {
             await mainCtrl.updateTaskComplete(selectedTask);
           },
           value: selectedTask.isComplete,
-          side: mainCtrl.isAllView.value
-              ? MaterialStateBorderSide.resolveWith(
-                  (states) => BorderSide(width: 1.0, color: taskColor),
-                )
-              : null,
+          side: MaterialStateBorderSide.resolveWith(
+            (states) => BorderSide(width: 1.0, color: taskColor),
+          ),
         ),
         title: Text(
           selectedTask.title,
@@ -46,7 +44,7 @@ class TaskTile extends StatelessWidget {
                   ? TextDecoration.lineThrough
                   : TextDecoration.none),
         ),
-        trailing: mainCtrl.isAllView.value
+        trailing: mainCtrl.isStarredView.value
             ? Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
@@ -55,11 +53,15 @@ class TaskTile extends StatelessWidget {
                 child: Text(selectedTask.boardName!,
                     style: TextStyle(fontSize: 10, color: boardColor)),
               )
-            : Container(
-                height: 15,
-                width: 15,
-                decoration:
-                    BoxDecoration(shape: BoxShape.circle, color: taskColor),
+            : IconButton(
+                onPressed: () async {
+                  selectedTask.isStarred = !selectedTask.isStarred;
+                  await mainCtrl.updateTask(selectedTask.id!, selectedTask);
+                },
+                icon: Icon(
+                  selectedTask.isStarred ? Icons.star : Icons.star_outline,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
               ),
         onTap: () {
           Navigator.push(
